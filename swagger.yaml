@@ -1,0 +1,144 @@
+swagger: "2.0"
+info:
+  title: S3
+  description: This API is dedicated to store objects to a bucket.
+  version: '#VERSION#'
+  contact:
+    name: Houssem Aloulou
+ 
+schemes:
+  - http
+consumes:
+  - text/plain
+produces:
+  - application/json
+  
+
+ 
+paths:
+  /objects/{bucket}/{objectID}:
+    get:
+      summary: Get object by bucket name and object id.
+      operationId: 'getObject'
+      tags:
+        - Object Management
+      parameters:
+        - name: 'bucket'
+          in: path
+          description: Bucket name.
+          type: string
+          required: true
+        - name: 'objectID'
+          in: path
+          description: object id.
+          type: integer
+          format: int64
+          required: true
+      responses:
+        200:
+          description: Ok.
+          schema:
+            type: object
+            required:
+              - object
+            properties:
+              object:
+                $ref: '#/definitions/object'
+        400:
+          description: Bad request.
+        401:
+          description: Not authenticated.
+        403:
+          description: Forbidden.
+        404:
+          description: Object not found.        
+        500:
+          description: Failed to list groups.
+        503:
+          description: Not available.
+          
+
+    delete:
+      summary: delete an object.
+      operationId: 'deleteObject'
+      tags:
+        - Object Management
+      parameters:
+        - name: 'bucket'
+          in: path
+          description: Bucket name.
+          type: string
+          required: true
+        - name: 'objectID'
+          in: path
+          description: object id.
+          type: integer
+          format: int64
+          required: true
+      responses:
+        200:
+          description: Ok.
+        400:
+          description: Bad request.
+        401:
+          description: Not authenticated.
+        403:
+          description: Forbidden.
+        404:
+          description: Object not found.        
+        500:
+          description: Failed to delete object.
+        503:
+          description: Not available.      
+  /objects/{bucket}:
+     put:
+      summary: Add an object in a bucket.
+      operationId: 'putObject'
+      tags:
+        - Object Management
+      parameters:
+        - name: 'bucket'
+          in: path
+          description: Bucket name.
+          type: string
+          required: true
+        - name: 'http-text'
+          in: body
+          description: object content.
+          schema:
+            type: string
+          required: true
+      responses:
+        201:
+          description: Ok.
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+                format: int64
+                
+        400:
+          description: Bad request.
+        401:
+          description: Not authenticated.
+        403:
+          description: Forbidden.
+        404:
+          description: Object not found.        
+        500:
+          description: Failed to put object.
+        503:
+          description: Not available.
+
+definitions:
+  object:
+    required:
+    - id
+    - data 
+    properties:
+      id:
+        type: integer
+        format: int64
+      data:
+        type: string

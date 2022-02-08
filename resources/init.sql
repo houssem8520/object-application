@@ -1,0 +1,6 @@
+CREATE TABLE Objects (
+    ObjectID INTEGER PRIMARY KEY ,
+    Payload TEXT NOT NULL,
+    Bucket VARCHAR(255) NOT NULL
+);
+
