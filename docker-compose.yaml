@@ -11,5 +11,10 @@ services:
       OBJECT_SERVICE_LOGS_LEVEL: DEBUG
       OBJECT_SERVICE_SQLITE_FILE_PATH: /etc/object-application/sqlite.db
       OBJECT_SERVICE_PORT: 8080
+      OBJECT_SERVICE_CLIENT_ID: 560801366014-rb18qrclctj88k2boh6lgvrbiql0e6ni.apps.googleusercontent.com
+      OBJECT_SERVICE_CLIENT_SECRET: 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
+      OBJECT_SERVICE_AUTH_URL: https://accounts.google.com/o/oauth2/v2/auth
+      OBJECT_SERVICE_TOKEN_URL: https://www.googleapis.com/oauth2/v4/token
+      OBJECT_SERVICE_USER_INFO_URL: https://www.googleapis.com/oauth2/v3/userinfo
     volumes:
       - /home/gogo/Bureau/work/object-application/resources/:/etc/object-application/
