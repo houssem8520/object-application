@@ -118,7 +118,7 @@ make run.docker
 
 Get the access token through Google's oauth2 server.
 
-Open the browser and access the API login url on: http://127.0.0.1:8080/login, which will direct you to the Google login page.
+Open the browser and access the API login url on: http://127.0.0.1:8080/login, which will redirect you to the Google login page.
 
 Once you login with your google ID (e.g., your gmail account), the oauth2
 `access_token` is returned and displayed on the browser.
@@ -136,6 +136,6 @@ curl -X 'PUT'   'http://127.0.0.1:8080/secure/objects/BUCKET_NAME'   -H 'accept:
 ```
 ---
 **NOTE**
-For mor infomations, Swagger docs is available in this adress `http://127.0.0.1/docs`
+For mor infomations, Swagger docs is available in this adress `http://127.0.0.1:8080/docs`
 
 ---
