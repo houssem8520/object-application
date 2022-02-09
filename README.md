@@ -1,5 +1,5 @@
 # Objects Application
-Rest API to store and retrieve objects from a bucket. THe object represent the text of a http request.
+Rest API to store and retrieve objects from a bucket. The object represents the text of a http request.
 
 ## Swagger Specification
 ### Security
