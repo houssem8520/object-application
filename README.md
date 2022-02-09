@@ -102,7 +102,7 @@ make build.vendor.full make build.local
 to build the docker image
 
 ```
-make build.vendor.full make build.local
+make build.docker
 ```
 ### RUN
 the default configuration is in the `resources/.object-application.yml`
@@ -114,3 +114,24 @@ To run the container
 make run.docker
 ```
 
+#### Login to get the access token
+
+Get the access token through Google's oauth2 server.
+
+Open the browser and access the API login url on: http://127.0.0.1:8080/login, which will direct you to the Google login page.
+
+Once you login with your google ID (e.g., your gmail account), the oauth2
+`access_token` is returned and displayed on the browser.
+
+#### Exercise your authorizer
+
+`TOKEN` is obtained from the previous step.
+
+Now we may use this token to access the other endpoints published by our API.
+
+Let's try this with curl. Copy the received token and reuse it as shown below:
+
+```
+curl -X 'PUT'   'http://127.0.0.1:8080/secure/objects/BUCKET_NAME'   -H 'accept: application/json'   -H 'Content-Type: text/plain' -H 'Authorization:Bear TOKEN'  -d 'OBJECT_CONTENT'
+
+```
