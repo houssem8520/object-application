@@ -37,8 +37,65 @@ func init() {
     "version": "0.0.1"
   },
   "paths": {
+    "/auth/callback": {
+      "get": {
+        "security": [],
+        "tags": [
+          "Security"
+        ],
+        "summary": "return access_token",
+        "responses": {
+          "200": {
+            "description": "login",
+            "schema": {
+              "properties": {
+                "access_token": {
+                  "type": "string",
+                  "format": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/login": {
+      "get": {
+        "security": [],
+        "tags": [
+          "Security"
+        ],
+        "summary": "login through oauth2 server",
+        "responses": {
+          "200": {
+            "description": "login",
+            "schema": {
+              "properties": {
+                "access_token": {
+                  "type": "string",
+                  "format": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/objects/{bucket}": {
       "put": {
+        "security": [],
         "tags": [
           "Object Management"
         ],
@@ -98,6 +155,7 @@ func init() {
     },
     "/objects/{bucket}/{objectID}": {
       "get": {
+        "security": [],
         "tags": [
           "Object Management"
         ],
@@ -156,6 +214,7 @@ func init() {
         }
       },
       "delete": {
+        "security": [],
         "tags": [
           "Object Management"
         ],
@@ -202,9 +261,193 @@ func init() {
           }
         }
       }
+    },
+    "/secure/objects/{bucket}": {
+      "put": {
+        "tags": [
+          "Secure Object Management"
+        ],
+        "summary": "Add an object in a bucket.",
+        "operationId": "putSecureObject",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Bucket name.",
+            "name": "bucket",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "object content.",
+            "name": "http-text",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Ok.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request."
+          },
+          "401": {
+            "description": "Not authenticated."
+          },
+          "403": {
+            "description": "Forbidden."
+          },
+          "404": {
+            "description": "Object not found."
+          },
+          "500": {
+            "description": "Failed to put object."
+          },
+          "503": {
+            "description": "Not available."
+          }
+        }
+      }
+    },
+    "/secure/objects/{bucket}/{objectID}": {
+      "get": {
+        "tags": [
+          "Secure Object Management"
+        ],
+        "summary": "Get object by bucket name and object id.",
+        "operationId": "getSecureObject",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Bucket name.",
+            "name": "bucket",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "object id.",
+            "name": "objectID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok.",
+            "schema": {
+              "type": "object",
+              "required": [
+                "object"
+              ],
+              "properties": {
+                "object": {
+                  "$ref": "#/definitions/object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request."
+          },
+          "401": {
+            "description": "Not authenticated."
+          },
+          "403": {
+            "description": "Forbidden."
+          },
+          "404": {
+            "description": "Object not found."
+          },
+          "500": {
+            "description": "Failed to list groups."
+          },
+          "503": {
+            "description": "Not available."
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Secure Object Management"
+        ],
+        "summary": "delete an object.",
+        "operationId": "deleteSecureObject",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Bucket name.",
+            "name": "bucket",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "object id.",
+            "name": "objectID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok."
+          },
+          "400": {
+            "description": "Bad request."
+          },
+          "401": {
+            "description": "Not authenticated."
+          },
+          "403": {
+            "description": "Forbidden."
+          },
+          "404": {
+            "description": "Object not found."
+          },
+          "500": {
+            "description": "Failed to delete object."
+          },
+          "503": {
+            "description": "Not available."
+          }
+        }
+      }
     }
   },
   "definitions": {
+    "error": {
+      "type": "object",
+      "required": [
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "fields": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
     "object": {
       "required": [
         "id",
@@ -219,8 +462,30 @@ func init() {
           "format": "int64"
         }
       }
+    },
+    "principal": {
+      "type": "string"
     }
-  }
+  },
+  "securityDefinitions": {
+    "OauthSecurity": {
+      "type": "oauth2",
+      "flow": "accessCode",
+      "authorizationUrl": "https://accounts.google.com/o/oauth2/v2/auth",
+      "tokenUrl": "https://www.googleapis.com/oauth2/v4/token",
+      "scopes": {
+        "admin": "Admin scope",
+        "user": "User scope"
+      }
+    }
+  },
+  "security": [
+    {
+      "OauthSecurity": [
+        "user"
+      ]
+    }
+  ]
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
   "consumes": [
@@ -242,8 +507,65 @@ func init() {
     "version": "0.0.1"
   },
   "paths": {
+    "/auth/callback": {
+      "get": {
+        "security": [],
+        "tags": [
+          "Security"
+        ],
+        "summary": "return access_token",
+        "responses": {
+          "200": {
+            "description": "login",
+            "schema": {
+              "properties": {
+                "access_token": {
+                  "type": "string",
+                  "format": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/login": {
+      "get": {
+        "security": [],
+        "tags": [
+          "Security"
+        ],
+        "summary": "login through oauth2 server",
+        "responses": {
+          "200": {
+            "description": "login",
+            "schema": {
+              "properties": {
+                "access_token": {
+                  "type": "string",
+                  "format": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/objects/{bucket}": {
       "put": {
+        "security": [],
         "tags": [
           "Object Management"
         ],
@@ -303,6 +625,7 @@ func init() {
     },
     "/objects/{bucket}/{objectID}": {
       "get": {
+        "security": [],
         "tags": [
           "Object Management"
         ],
@@ -361,6 +684,7 @@ func init() {
         }
       },
       "delete": {
+        "security": [],
         "tags": [
           "Object Management"
         ],
@@ -407,9 +731,193 @@ func init() {
           }
         }
       }
+    },
+    "/secure/objects/{bucket}": {
+      "put": {
+        "tags": [
+          "Secure Object Management"
+        ],
+        "summary": "Add an object in a bucket.",
+        "operationId": "putSecureObject",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Bucket name.",
+            "name": "bucket",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "object content.",
+            "name": "http-text",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Ok.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request."
+          },
+          "401": {
+            "description": "Not authenticated."
+          },
+          "403": {
+            "description": "Forbidden."
+          },
+          "404": {
+            "description": "Object not found."
+          },
+          "500": {
+            "description": "Failed to put object."
+          },
+          "503": {
+            "description": "Not available."
+          }
+        }
+      }
+    },
+    "/secure/objects/{bucket}/{objectID}": {
+      "get": {
+        "tags": [
+          "Secure Object Management"
+        ],
+        "summary": "Get object by bucket name and object id.",
+        "operationId": "getSecureObject",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Bucket name.",
+            "name": "bucket",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "object id.",
+            "name": "objectID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok.",
+            "schema": {
+              "type": "object",
+              "required": [
+                "object"
+              ],
+              "properties": {
+                "object": {
+                  "$ref": "#/definitions/object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request."
+          },
+          "401": {
+            "description": "Not authenticated."
+          },
+          "403": {
+            "description": "Forbidden."
+          },
+          "404": {
+            "description": "Object not found."
+          },
+          "500": {
+            "description": "Failed to list groups."
+          },
+          "503": {
+            "description": "Not available."
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Secure Object Management"
+        ],
+        "summary": "delete an object.",
+        "operationId": "deleteSecureObject",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Bucket name.",
+            "name": "bucket",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "object id.",
+            "name": "objectID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok."
+          },
+          "400": {
+            "description": "Bad request."
+          },
+          "401": {
+            "description": "Not authenticated."
+          },
+          "403": {
+            "description": "Forbidden."
+          },
+          "404": {
+            "description": "Object not found."
+          },
+          "500": {
+            "description": "Failed to delete object."
+          },
+          "503": {
+            "description": "Not available."
+          }
+        }
+      }
     }
   },
   "definitions": {
+    "error": {
+      "type": "object",
+      "required": [
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "fields": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
     "object": {
       "required": [
         "id",
@@ -424,7 +932,29 @@ func init() {
           "format": "int64"
         }
       }
+    },
+    "principal": {
+      "type": "string"
     }
-  }
+  },
+  "securityDefinitions": {
+    "OauthSecurity": {
+      "type": "oauth2",
+      "flow": "accessCode",
+      "authorizationUrl": "https://accounts.google.com/o/oauth2/v2/auth",
+      "tokenUrl": "https://www.googleapis.com/oauth2/v4/token",
+      "scopes": {
+        "admin": "Admin scope",
+        "user": "User scope"
+      }
+    }
+  },
+  "security": [
+    {
+      "OauthSecurity": [
+        "user"
+      ]
+    }
+  ]
 }`))
 }

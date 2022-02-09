@@ -1,3 +1,8 @@
 LOGS_LEVEL: DEBUG
 PORT: 8080
 SQLITE_FILE_PATH: resources/sqlite.db
+CLIENT_ID: 560801366014-rb18qrclctj88k2boh6lgvrbiql0e6ni.apps.googleusercontent.com
+CLIENT_SECRET: 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
+AUTH_URL: https://accounts.google.com/o/oauth2/v2/auth
+TOKEN_URL: https://www.googleapis.com/oauth2/v4/token
+USER_INFO_URL: https://www.googleapis.com/oauth2/v3/userinfo

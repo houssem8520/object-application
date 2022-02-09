@@ -12,6 +12,20 @@ const (
 	logsLevel = "LOGS_LEVEL"
 	path      = "SQLITE_FILE_PATH"
 	port      = "PORT"
+
+	clientID     = "CLIENT_ID"     // <= enter registered API client ID here
+	clientSecret = "CLIENT_SECRET" // <= enter registered API client secret here
+
+	//  unused in this example: the signer of the delivered token
+	// issuer = "https://accounts.google.com"
+
+	// the Google login URL
+	authURL = "AUTH_URL"
+
+	// the Google OAuth2 resource provider which delivers access tokens
+	/* #nosec */
+	tokenURL    = "TOKEN_URL"
+	userInfoURL = "USER_INFO_URL"
 )
 
 // ParseConfiguration reads the configuration file given as parameter.
@@ -34,6 +48,25 @@ func ParseConfiguration(confFile string) {
 
 func GetSqliteFilePath() string {
 	return viper.GetString(path)
+}
+
+func GetClientId() string {
+	return viper.GetString(clientID)
+}
+
+func GetClientSecret() string {
+	return viper.GetString(clientSecret)
+}
+
+func GetAuthURL() string {
+	return viper.GetString(authURL)
+}
+func GetTokenURL() string {
+	return viper.GetString(tokenURL)
+}
+
+func GetUserInfoURL() string {
+	return viper.GetString(userInfoURL)
 }
 
 func GetPort() int {

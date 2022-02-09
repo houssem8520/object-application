@@ -24,7 +24,7 @@ build.swagger:
 	@mkdir -p $(CURDIR)/target
 	cp swagger.yaml $(CURDIR)/target/swagger.yaml
 	sed "s/#VERSION#/$(VERSION)/g" -i $(CURDIR)/target/swagger.yaml
-	 $(TOOLS_DIR)/swagger generate server -f $(CURDIR)/target/swagger.yaml --name=$(NAME) --exclude-main
+	 $(TOOLS_DIR)/swagger generate server -f $(CURDIR)/target/swagger.yaml -P models.Principal --name=$(NAME) --exclude-main
 
 
 

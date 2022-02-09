@@ -19,7 +19,10 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
+	"github.com/object.application/models"
 	"github.com/object.application/restapi/operations/object_management"
+	"github.com/object.application/restapi/operations/secure_object_management"
+	securityops "github.com/object.application/restapi/operations/security"
 )
 
 // NewObjectApplicationAPI creates a new ObjectApplication instance
@@ -44,15 +47,36 @@ func NewObjectApplicationAPI(spec *loads.Document) *ObjectApplicationAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
+		SecurityGetAuthCallbackHandler: securityops.GetAuthCallbackHandlerFunc(func(params securityops.GetAuthCallbackParams) middleware.Responder {
+			return middleware.NotImplemented("operation security.GetAuthCallback has not yet been implemented")
+		}),
+		SecurityGetLoginHandler: securityops.GetLoginHandlerFunc(func(params securityops.GetLoginParams) middleware.Responder {
+			return middleware.NotImplemented("operation security.GetLogin has not yet been implemented")
+		}),
 		ObjectManagementDeleteObjectHandler: object_management.DeleteObjectHandlerFunc(func(params object_management.DeleteObjectParams) middleware.Responder {
 			return middleware.NotImplemented("operation object_management.DeleteObject has not yet been implemented")
+		}),
+		SecureObjectManagementDeleteSecureObjectHandler: secure_object_management.DeleteSecureObjectHandlerFunc(func(params secure_object_management.DeleteSecureObjectParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation secure_object_management.DeleteSecureObject has not yet been implemented")
 		}),
 		ObjectManagementGetObjectHandler: object_management.GetObjectHandlerFunc(func(params object_management.GetObjectParams) middleware.Responder {
 			return middleware.NotImplemented("operation object_management.GetObject has not yet been implemented")
 		}),
+		SecureObjectManagementGetSecureObjectHandler: secure_object_management.GetSecureObjectHandlerFunc(func(params secure_object_management.GetSecureObjectParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation secure_object_management.GetSecureObject has not yet been implemented")
+		}),
 		ObjectManagementPutObjectHandler: object_management.PutObjectHandlerFunc(func(params object_management.PutObjectParams) middleware.Responder {
 			return middleware.NotImplemented("operation object_management.PutObject has not yet been implemented")
 		}),
+		SecureObjectManagementPutSecureObjectHandler: secure_object_management.PutSecureObjectHandlerFunc(func(params secure_object_management.PutSecureObjectParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation secure_object_management.PutSecureObject has not yet been implemented")
+		}),
+
+		OauthSecurityAuth: func(token string, scopes []string) (*models.Principal, error) {
+			return nil, errors.NotImplemented("oauth2 bearer auth (OauthSecurity) has not yet been implemented")
+		},
+		// default authorizer is authorized meaning no requests are blocked
+		APIAuthorizer: security.Authorized(),
 	}
 }
 
@@ -89,12 +113,29 @@ type ObjectApplicationAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
+	// OauthSecurityAuth registers a function that takes an access token and a collection of required scopes and returns a principal
+	// it performs authentication based on an oauth2 bearer token provided in the request
+	OauthSecurityAuth func(string, []string) (*models.Principal, error)
+
+	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
+	APIAuthorizer runtime.Authorizer
+
+	// SecurityGetAuthCallbackHandler sets the operation handler for the get auth callback operation
+	SecurityGetAuthCallbackHandler securityops.GetAuthCallbackHandler
+	// SecurityGetLoginHandler sets the operation handler for the get login operation
+	SecurityGetLoginHandler securityops.GetLoginHandler
 	// ObjectManagementDeleteObjectHandler sets the operation handler for the delete object operation
 	ObjectManagementDeleteObjectHandler object_management.DeleteObjectHandler
+	// SecureObjectManagementDeleteSecureObjectHandler sets the operation handler for the delete secure object operation
+	SecureObjectManagementDeleteSecureObjectHandler secure_object_management.DeleteSecureObjectHandler
 	// ObjectManagementGetObjectHandler sets the operation handler for the get object operation
 	ObjectManagementGetObjectHandler object_management.GetObjectHandler
+	// SecureObjectManagementGetSecureObjectHandler sets the operation handler for the get secure object operation
+	SecureObjectManagementGetSecureObjectHandler secure_object_management.GetSecureObjectHandler
 	// ObjectManagementPutObjectHandler sets the operation handler for the put object operation
 	ObjectManagementPutObjectHandler object_management.PutObjectHandler
+	// SecureObjectManagementPutSecureObjectHandler sets the operation handler for the put secure object operation
+	SecureObjectManagementPutSecureObjectHandler secure_object_management.PutSecureObjectHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -172,14 +213,33 @@ func (o *ObjectApplicationAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.OauthSecurityAuth == nil {
+		unregistered = append(unregistered, "OauthSecurityAuth")
+	}
+
+	if o.SecurityGetAuthCallbackHandler == nil {
+		unregistered = append(unregistered, "security.GetAuthCallbackHandler")
+	}
+	if o.SecurityGetLoginHandler == nil {
+		unregistered = append(unregistered, "security.GetLoginHandler")
+	}
 	if o.ObjectManagementDeleteObjectHandler == nil {
 		unregistered = append(unregistered, "object_management.DeleteObjectHandler")
+	}
+	if o.SecureObjectManagementDeleteSecureObjectHandler == nil {
+		unregistered = append(unregistered, "secure_object_management.DeleteSecureObjectHandler")
 	}
 	if o.ObjectManagementGetObjectHandler == nil {
 		unregistered = append(unregistered, "object_management.GetObjectHandler")
 	}
+	if o.SecureObjectManagementGetSecureObjectHandler == nil {
+		unregistered = append(unregistered, "secure_object_management.GetSecureObjectHandler")
+	}
 	if o.ObjectManagementPutObjectHandler == nil {
 		unregistered = append(unregistered, "object_management.PutObjectHandler")
+	}
+	if o.SecureObjectManagementPutSecureObjectHandler == nil {
+		unregistered = append(unregistered, "secure_object_management.PutSecureObjectHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -196,12 +256,22 @@ func (o *ObjectApplicationAPI) ServeErrorFor(operationID string) func(http.Respo
 
 // AuthenticatorsFor gets the authenticators for the specified security schemes
 func (o *ObjectApplicationAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme) map[string]runtime.Authenticator {
-	return nil
+	result := make(map[string]runtime.Authenticator)
+	for name := range schemes {
+		switch name {
+		case "OauthSecurity":
+			result[name] = o.BearerAuthenticator(name, func(token string, scopes []string) (interface{}, error) {
+				return o.OauthSecurityAuth(token, scopes)
+			})
+
+		}
+	}
+	return result
 }
 
 // Authorizer returns the registered authorizer
 func (o *ObjectApplicationAPI) Authorizer() runtime.Authorizer {
-	return nil
+	return o.APIAuthorizer
 }
 
 // ConsumersFor gets the consumers for the specified media types.
@@ -269,18 +339,38 @@ func (o *ObjectApplicationAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/auth/callback"] = securityops.NewGetAuthCallback(o.context, o.SecurityGetAuthCallbackHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/login"] = securityops.NewGetLogin(o.context, o.SecurityGetLoginHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/objects/{bucket}/{objectID}"] = object_management.NewDeleteObject(o.context, o.ObjectManagementDeleteObjectHandler)
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/secure/objects/{bucket}/{objectID}"] = secure_object_management.NewDeleteSecureObject(o.context, o.SecureObjectManagementDeleteSecureObjectHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/objects/{bucket}/{objectID}"] = object_management.NewGetObject(o.context, o.ObjectManagementGetObjectHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/secure/objects/{bucket}/{objectID}"] = secure_object_management.NewGetSecureObject(o.context, o.SecureObjectManagementGetSecureObjectHandler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/objects/{bucket}"] = object_management.NewPutObject(o.context, o.ObjectManagementPutObjectHandler)
+	if o.handlers["PUT"] == nil {
+		o.handlers["PUT"] = make(map[string]http.Handler)
+	}
+	o.handlers["PUT"]["/secure/objects/{bucket}"] = secure_object_management.NewPutSecureObject(o.context, o.SecureObjectManagementPutSecureObjectHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP
