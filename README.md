@@ -23,6 +23,7 @@ securityDefinitions:
 ---
 **NOTE**
 The oauth2 client is configured only to accept this callback `http://127.0.0.1:8080/auth/callback`. So if we change the port, the secured endpoints (start with `/secure`)will not work. 
+
 ---
 
 ### Objects API
@@ -136,4 +137,5 @@ curl -X 'PUT'   'http://127.0.0.1:8080/secure/objects/BUCKET_NAME'   -H 'accept:
 ---
 **NOTE**
 For mor infomations, Swagger docs is available in his adress 127.0.0.1:8080/docs
+
 ---
