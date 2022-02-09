@@ -1,0 +1,15 @@
+version: "3"
+services:
+  object-services:
+    image: docker.io/library/object-application:latest 
+    container_name: object-service
+    command: run --host 0.0.0.0
+    ports:
+      - 8080:8080
+    restart: always
+    environment:
+      OBJECT_SERVICE_LOGS_LEVEL: DEBUG
+      OBJECT_SERVICE_SQLITE_FILE_PATH: /etc/object-application/sqlite.db
+      OBJECT_SERVICE_PORT: 8080
+    volumes:
+      - /home/gogo/Bureau/work/object-application/resources/:/etc/object-application/
