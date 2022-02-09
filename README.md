@@ -136,6 +136,6 @@ curl -X 'PUT'   'http://127.0.0.1:8080/secure/objects/BUCKET_NAME'   -H 'accept:
 ```
 ---
 **NOTE**
-For mor infomations, Swagger docs is available in his adress 127.0.0.1:8080/docs
+For mor infomations, Swagger docs is available in this adress `http://127.0.0.1/docs`
 
 ---
