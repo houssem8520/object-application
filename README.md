@@ -22,8 +22,7 @@ securityDefinitions:
 
 ---
 **NOTE**
-The oauth2 client is configured only to accept this callback `http://127.0.0.1:8080/auth/callback`.So if we change the port, the secured endpoints (start with `/secure`)will not work. 
-
+The oauth2 client is configured only to accept this callback `http://127.0.0.1:8080/auth/callback`. So if we change the port, the secured endpoints (start with `/secure`)will not work. 
 ---
 
 ### Objects API
@@ -127,11 +126,14 @@ Once you login with your google ID (e.g., your gmail account), the oauth2
 
 `TOKEN` is obtained from the previous step.
 
-Now we may use this token to access the other endpoints published by our API.
+Now we may use this token to access to the other endpoints published by our API.
 
 Let's try this with curl. Copy the received token and reuse it as shown below:
 
 ```
 curl -X 'PUT'   'http://127.0.0.1:8080/secure/objects/BUCKET_NAME'   -H 'accept: application/json'   -H 'Content-Type: text/plain' -H 'Authorization:Bear TOKEN'  -d 'OBJECT_CONTENT'
-
 ```
+---
+**NOTE**
+For mor infomations, Swagger docs is available in his adress 127.0.0.1:8080/docs
+---
