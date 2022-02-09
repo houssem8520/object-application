@@ -61,17 +61,17 @@ func configureAPI(api *operations.ObjectApplicationAPI) http.Handler {
 	api.JSONProducer = runtime.JSONProducer()
 
 	api.OauthSecurityAuth = func(token string, scopes []string) (*models.Principal, error) {
-        // This handler is called by the runtime whenever a route needs authentication 
-        // against the 'OAuthSecurity' scheme.
-        // It is passed a token extracted from the Authentication Bearer header, and 
-        // the list of scopes mentioned by the spec for this route.
+		// This handler is called by the runtime whenever a route needs authentication
+		// against the 'OAuthSecurity' scheme.
+		// It is passed a token extracted from the Authentication Bearer header, and
+		// the list of scopes mentioned by the spec for this route.
 
-        // NOTE: in this simple implementation, we do not check scopes against  
-        // the signed claims in the JWT token.
-        // So whatever the required scope (passed a parameter by the runtime), 
-        // this will succeed provided we get a valid token.
+		// NOTE: in this simple implementation, we do not check scopes against
+		// the signed claims in the JWT token.
+		// So whatever the required scope (passed a parameter by the runtime),
+		// this will succeed provided we get a valid token.
 
-        // authenticated validates a JWT token at userInfoURL
+		// authenticated validates a JWT token at userInfoURL
 		ok, err := authenticated(token)
 		if err != nil {
 			return nil, errors.New(401, "error authenticate")
@@ -80,7 +80,7 @@ func configureAPI(api *operations.ObjectApplicationAPI) http.Handler {
 			return nil, errors.New(401, "invalid token")
 		}
 
-        // returns the authenticated principal (here just filled in with its token)
+		// returns the authenticated principal (here just filled in with its token)
 		prin := models.Principal(token)
 		return &prin, nil
 	}
@@ -91,22 +91,22 @@ func configureAPI(api *operations.ObjectApplicationAPI) http.Handler {
 	// Example:
 	// api.APIAuthorizer = security.Authorized()
 
-		api.SecurityGetAuthCallbackHandler = securityops.GetAuthCallbackHandlerFunc(func(params securityops.GetAuthCallbackParams) middleware.Responder {
-       // implements the callback operation
-	   token, err := callback(params.HTTPRequest)
-	   if err != nil {
-		   return middleware.NotImplemented("operation .GetAuthCallback error")
-	   }
-	   log.Println("Token", token)
-	   return securityops.NewGetAuthCallbackDefault(200).WithPayload(&models.Error{Code: 200, Message: swag.String(token)})
-	
-		})
+	api.SecurityGetAuthCallbackHandler = securityops.GetAuthCallbackHandlerFunc(func(params securityops.GetAuthCallbackParams) middleware.Responder {
+		// implements the callback operation
+		token, err := callback(params.HTTPRequest)
+		if err != nil {
+			return middleware.NotImplemented("operation .GetAuthCallback error")
+		}
+		log.Println("Token", token)
+		return securityops.NewGetAuthCallbackDefault(200).WithPayload(&models.Error{Code: 200, Message: swag.String(token)})
 
-		api.SecurityGetLoginHandler = securityops.GetLoginHandlerFunc(func(params securityops.GetLoginParams) middleware.Responder {
-			return login(params.HTTPRequest)
-		})
-	
-		repo, err := sqlite.New(conf.GetSqliteFilePath())
+	})
+
+	api.SecurityGetLoginHandler = securityops.GetLoginHandlerFunc(func(params securityops.GetLoginParams) middleware.Responder {
+		return login(params.HTTPRequest)
+	})
+
+	repo, err := sqlite.New(conf.GetSqliteFilePath())
 	if err != nil {
 		log.WithError(err).Error("failed to connect to the sqlite db")
 		panic(err)
@@ -115,17 +115,16 @@ func configureAPI(api *operations.ObjectApplicationAPI) http.Handler {
 	objectService := service.New(repo)
 
 	api.ObjectManagementDeleteObjectHandler = object_management.DeleteObjectHandlerFunc(handler.DeleteObject(objectService))
-		
+
 	api.SecureObjectManagementDeleteSecureObjectHandler = secure_object_management.DeleteSecureObjectHandlerFunc(handler.DeleteSecureObject(objectService))
-	
-	api.ObjectManagementGetObjectHandler = object_management.GetObjectHandlerFunc(handler.GetObject(objectService)) 
+
+	api.ObjectManagementGetObjectHandler = object_management.GetObjectHandlerFunc(handler.GetObject(objectService))
 
 	api.SecureObjectManagementGetSecureObjectHandler = secure_object_management.GetSecureObjectHandlerFunc(handler.GetSecureObject(objectService))
 
 	api.ObjectManagementPutObjectHandler = object_management.PutObjectHandlerFunc(handler.PutObject(objectService))
-	
+
 	api.SecureObjectManagementPutSecureObjectHandler = secure_object_management.PutSecureObjectHandlerFunc(handler.PutSecureObject(objectService))
-	
 
 	api.PreServerShutdown = func() {}
 

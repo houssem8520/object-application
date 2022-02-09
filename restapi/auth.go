@@ -4,8 +4,8 @@ package restapi
 
 import (
 	"fmt"
-	"io/ioutil"
 	log "github.com/sirupsen/logrus"
+	"io/ioutil"
 	"net/http"
 
 	oidc "github.com/coreos/go-oidc"
@@ -28,7 +28,7 @@ var (
 
 )
 
-func GetAuthConfig()oauth2.Config {
+func GetAuthConfig() oauth2.Config {
 	endpoint := oauth2.Endpoint{
 		AuthURL:  conf.GetAuthURL(),
 		TokenURL: conf.GetTokenURL(),

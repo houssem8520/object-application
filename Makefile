@@ -56,15 +56,13 @@ build.local:
 run.local:
 	@$(CURDIR)/target/run  -c resources/.$(NAME).yaml 
 
-run.docker:
-	docker run -d --rm -v $(CURDIR)/resources/:/etc/$(NAME)/ --name $(NAME) docker.io/library/$(NAME):latest --config /etc/$(NAME)/.$(NAME).yaml
 
 #help run.infra: start docker-compose 
-run.infra:
+run.docker:
 	docker-compose -f $(CURDIR)/docker-compose.yaml up -d
 
 #help run.infra.stop: stop docker-compose 
-run.infra.stop:
+run.docker.stop:
 	docker-compose -f $(CURDIR)/docker-compose.yaml down
 
 build.docker:

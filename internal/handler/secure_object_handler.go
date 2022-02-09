@@ -12,8 +12,8 @@ import (
 	"github.com/object.application/restapi/operations/secure_object_management"
 )
 
-func DeleteSecureObject(s service.ObjectService) func(params secure_object_management.DeleteSecureObjectParams,principal *models.Principal) middleware.Responder {
-	return func(params secure_object_management.DeleteSecureObjectParams,principal *models.Principal) middleware.Responder {
+func DeleteSecureObject(s service.ObjectService) func(params secure_object_management.DeleteSecureObjectParams, principal *models.Principal) middleware.Responder {
+	return func(params secure_object_management.DeleteSecureObjectParams, principal *models.Principal) middleware.Responder {
 		// Propagate HTTP req context with a timeout.
 		ctx, cancel := context.WithTimeout(params.HTTPRequest.Context(), time.Minute)
 		defer cancel()
@@ -30,8 +30,8 @@ func DeleteSecureObject(s service.ObjectService) func(params secure_object_manag
 	}
 }
 
-func PutSecureObject(s service.ObjectService) func(params secure_object_management.PutSecureObjectParams,principal *models.Principal) middleware.Responder {
-	return func(params secure_object_management.PutSecureObjectParams,principal *models.Principal) middleware.Responder {
+func PutSecureObject(s service.ObjectService) func(params secure_object_management.PutSecureObjectParams, principal *models.Principal) middleware.Responder {
+	return func(params secure_object_management.PutSecureObjectParams, principal *models.Principal) middleware.Responder {
 		// Propagate HTTP req context with a timeout.
 		ctx, cancel := context.WithTimeout(params.HTTPRequest.Context(), time.Minute)
 		defer cancel()
@@ -50,8 +50,8 @@ func PutSecureObject(s service.ObjectService) func(params secure_object_manageme
 	}
 }
 
-func GetSecureObject(s service.ObjectService) func(params secure_object_management.GetSecureObjectParams,principal *models.Principal) middleware.Responder {
-	return func(params secure_object_management.GetSecureObjectParams,principal *models.Principal) middleware.Responder {
+func GetSecureObject(s service.ObjectService) func(params secure_object_management.GetSecureObjectParams, principal *models.Principal) middleware.Responder {
+	return func(params secure_object_management.GetSecureObjectParams, principal *models.Principal) middleware.Responder {
 		// Propagate HTTP req context with a timeout.
 		ctx, cancel := context.WithTimeout(params.HTTPRequest.Context(), time.Minute)
 		defer cancel()
@@ -76,4 +76,3 @@ func GetSecureObject(s service.ObjectService) func(params secure_object_manageme
 		return secure_object_management.NewGetSecureObjectOK().WithPayload(&payload)
 	}
 }
-

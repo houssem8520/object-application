@@ -30,7 +30,7 @@ func DeleteObject(s service.ObjectService) func(params object_management.DeleteO
 }
 
 func PutObject(s service.ObjectService) func(params object_management.PutObjectParams) middleware.Responder {
-	return func(params object_management.PutObjectParams ) middleware.Responder {
+	return func(params object_management.PutObjectParams) middleware.Responder {
 		// Propagate HTTP req context with a timeout.
 		ctx, cancel := context.WithTimeout(params.HTTPRequest.Context(), time.Minute)
 		defer cancel()
@@ -75,4 +75,3 @@ func GetObject(s service.ObjectService) func(params object_management.GetObjectP
 		return object_management.NewGetObjectOK().WithPayload(&payload)
 	}
 }
-
